@@ -19,5 +19,5 @@ def hello_world():
     return str(isPhishing[0])
 
 if __name__ == "__main__":
-    asgi_app = WsgiToAsgi(app)
+    asgi_app = WsgiToAsgi(app.run(debug=True, port=os.getenv("PORT", default=5000)))
     asyncio.run(serve(asgi_app, Config()))
