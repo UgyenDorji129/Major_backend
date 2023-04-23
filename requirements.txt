@@ -86,3 +86,4 @@ whois==0.9.27
 Flask==2.2.3
 hypercorn==0.14.3
 joblib==1.2.0
+sklearn==0.0.post4
