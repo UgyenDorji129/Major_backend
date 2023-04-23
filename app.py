@@ -20,7 +20,7 @@ def hello_world():
     return str(isPhishing[0])
 
 @app.route('/dha',)
-def hello_world():
+def dha():
     return "j za"
 
 if __name__ == "__main__":
