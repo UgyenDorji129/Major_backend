@@ -19,6 +19,10 @@ def hello_world():
     print("dha: ",isPhishing)
     return str(isPhishing[0])
 
+@app.route('/dha',)
+def hello_world():
+    return "j za"
+
 if __name__ == "__main__":
     asgi_app = WsgiToAsgi(app.run(debug=True, port=os.getenv("PORT", default=5000)))
     asyncio.run(serve(asgi_app, Config()))
