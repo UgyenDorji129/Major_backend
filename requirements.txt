@@ -84,3 +84,4 @@ urllib3==1.26.15
 virtualenv==20.22.0
 whois==0.9.27
 Flask==2.2.3
+hypercorn==0.14.3
