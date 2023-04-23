@@ -5,6 +5,7 @@ from hypercorn.config import Config
 from hypercorn.asyncio import serve
 import asyncio
 from model.predict import predict
+import os
 
 
 app = Flask(__name__)
