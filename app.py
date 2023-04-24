@@ -14,7 +14,7 @@ app = Flask(__name__)
 def check_Url():
     data = request.get_json()
     
-    isAccessible =  is_URL_accessible("http://rgipt.ac.in")
+    isAccessible =  is_URL_accessible(data['url'])
     if(isAccessible[0] == False):
         result = extract_features(data['url'])
         isPhishing = predict(result)
