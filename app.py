@@ -11,18 +11,18 @@ import os
 app = Flask(__name__)
 
 @app.route('/',methods=['POST'])
-def hello_world():
+def check_Url():
     data = request.get_json()
-    result = extract_features(data['url'])
-    # result =  is_URL_accessible("http://rgipt.ac.in")
-    isPhishing = predict(result)
-    print("dha: ",isPhishing)
-    return str(isPhishing[0])
-
-@app.route('/dha',)
-def dha():
-    return "j za"
+    
+    isAccessible =  is_URL_accessible("http://rgipt.ac.in")
+    if(isAccessible[0] == False):
+        result = extract_features(data['url'])
+        isPhishing = predict(result)
+        return str(isPhishing[0])
+    else:
+        return str(-1)
+    
 
 if __name__ == "__main__":
-    asgi_app = WsgiToAsgi(app.run(debug=True, port=os.getenv("PORT", default=5000)))
+    asgi_app = WsgiToAsgi(app.run(debug=True, port=os.getenv("PORT", default=6000)))
     asyncio.run(serve(asgi_app, Config()))
