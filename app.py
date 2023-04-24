@@ -14,8 +14,9 @@ app = Flask(__name__)
 def check_Url():
     data = request.get_json()
     
-    isAccessible =  is_URL_accessible("http://rgipt.ac.in")
-    if(isAccessible[0] == False):
+    isAccessible =  is_URL_accessible(data['url'])
+    print("dha:",isAccessible)
+    if(isAccessible[0] == True):
         result = extract_features(data['url'])
         isPhishing = predict(result)
         return str(isPhishing[0])
@@ -24,5 +25,5 @@ def check_Url():
     
 
 if __name__ == "__main__":
-    asgi_app = WsgiToAsgi(app.run(debug=True, port=os.getenv("PORT", default=6000)))
+    asgi_app = WsgiToAsgi(app.run(debug=True, port=os.getenv("PORT", default=7000)))
     asyncio.run(serve(asgi_app, Config()))
