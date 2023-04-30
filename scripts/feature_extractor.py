@@ -1,6 +1,6 @@
-import content_features as ctnfe
-import url_features as urlfe
-import external_features as trdfe
+from scripts import content_features as ctnfe
+from scripts import url_features as urlfe
+from scripts import external_features as trdfe
 import urllib.parse
 import tldextract
 import requests
