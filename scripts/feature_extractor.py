@@ -430,6 +430,3 @@ tpt_headers = [
 
 headers = url_headers + ctn_headers + tpt_headers
 
-
-result = extract_features("http://rgipt.ac.in","phishing")
-print(result)
