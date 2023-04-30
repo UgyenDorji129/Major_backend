@@ -10,27 +10,9 @@ from bs4 import BeautifulSoup
 
 key = 'wg8g8csw8csg8oog8osokk00s4oc84woockgow0k'
 
-import signal
 
-class TimedOutExc(Exception):
-    pass
 
-def deadline(timeout, *args):
-    def decorate(f):
-        def handler(signum, frame):
-            raise TimedOutExc()
 
-        def new_f(*args):
-            signal.signal(signal.SIGALRM, handler)
-            signal.alarm(timeout)
-            return f(*args)
-            signal.alarm(0)
-
-        new_f.__name__ = f.__name__
-        return new_f
-    return decorate
-
-@deadline(5)
 def is_URL_accessible(url):
     page = None
     try:
