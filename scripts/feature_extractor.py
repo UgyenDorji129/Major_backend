@@ -1,6 +1,6 @@
-from scripts import content_features as ctnfe
-from scripts import url_features as urlfe
-from scripts import external_features as trdfe
+import content_features as ctnfe
+import url_features as urlfe
+import external_features as trdfe
 import urllib.parse
 import tldextract
 import requests
@@ -12,31 +12,29 @@ key = 'wg8g8csw8csg8oog8osokk00s4oc84woockgow0k'
 
 import signal
 
-# class TimedOutExc(Exception):
-#     pass
+class TimedOutExc(Exception):
+    pass
 
-# def deadline(timeout, *args):
-#     def decorate(f):
-#         def handler(signum, frame):
-#             raise TimedOutExc()
+def deadline(timeout, *args):
+    def decorate(f):
+        def handler(signum, frame):
+            raise TimedOutExc()
 
-#         def new_f(*args):
-#             signal.signal(signal.SIGALRM, handler)
-#             signal.alarm(timeout)
-#             return f(*args)
-#             signal.alarm(0)
+        def new_f(*args):
+            signal.signal(signal.SIGALRM, handler)
+            signal.alarm(timeout)
+            return f(*args)
+            signal.alarm(0)
 
-#         new_f.__name__ = f.__name__
-#         return new_f
-#     return decorate
+        new_f.__name__ = f.__name__
+        return new_f
+    return decorate
 
-
+@deadline(5)
 def is_URL_accessible(url):
-    print(url)
     page = None
-    print(url)
     try:
-        page =  requests.get(url, timeout=5) 
+        page = requests.get(url, timeout=5) 
         print("Page: ",page)  
     except:
         parsed = urlparse(url)
@@ -44,7 +42,7 @@ def is_URL_accessible(url):
         if not parsed.netloc.startswith('www'):
             url = parsed.scheme+'://www.'+parsed.netloc
             try:
-                page =  requests.get(url, timeout=5)
+                page = requests.get(url, timeout=5)
             except:
                 page = None
                 pass
@@ -54,23 +52,11 @@ def is_URL_accessible(url):
         return False, None, None
 
 def get_domain(url):
-    o =urllib.parse.urlsplit(url)
+    o = urllib.parse.urlsplit(url)
     return o.hostname, tldextract.extract(url).domain, o.path
 
 
 def getPageContent(url):
-    # parsed = urlparse(url)
-    # url = parsed.scheme+'://'+parsed.netloc
-    # try:
-    #     page = requests.get(url)
-    # except:
-    #     if not parsed.netloc.startswith('www'):
-    #         url = parsed.scheme+'://www.'+parsed.netloc
-    #         page = requests.get(url)
-    # if page.status_code != 200:
-    #     return None, None
-    # else:    
-    #     return url, page.content
     parsed = urlparse(url)
     url = f"{parsed.scheme}://{parsed.netloc}"
     try:
@@ -326,7 +312,7 @@ def extract_data_from_URL(hostname, content, domain, Href, Link, Anchor, Media, 
 #################################################################################################################################
 
 
-def extract_features(url):
+def extract_features(url, status):
     
     def words_raw_extraction(domain, subdomain, path):
         w_domain = re.split("\-|\.|\/|\?|\=|\@|\&|\%|\:|\_", domain.lower())
@@ -365,108 +351,30 @@ def extract_features(url):
         
         Href, Link, Anchor, Media, Form, CSS, Favicon, IFrame, Title, Text = extract_data_from_URL(hostname, content, domain, Href, Link, Anchor, Media, Form, CSS, Favicon, IFrame, Title, Text)
 
-        row = [
-               # url-based features
-               urlfe.url_length(url),
-               urlfe.url_length(hostname),
-               urlfe.having_ip_address(url),
-               urlfe.count_dots(url),
-               urlfe.count_hyphens(url),
-               urlfe.count_at(url),
-               urlfe.count_exclamation(url),
-               urlfe.count_and(url),
-               urlfe.count_or(url),
-               urlfe.count_equal(url),
-               urlfe.count_underscore(url),
-               urlfe.count_tilde(url),
-               urlfe.count_percentage(url),
-               urlfe.count_slash(url),
-               urlfe.count_star(url),
-               urlfe.count_colon(url),
-               urlfe.count_comma(url),
-               urlfe.count_semicolumn(url),
-               urlfe.count_dollar(url),
-               urlfe.count_space(url),
-               
-               urlfe.check_www(words_raw),
-               urlfe.check_com(words_raw),
-               urlfe.count_double_slash(url),
-               urlfe.count_http_token(path),
-               urlfe.https_token(scheme),
-               
-               urlfe.ratio_digits(url),
-               urlfe.ratio_digits(hostname),
-               urlfe.punycode(url),
-               urlfe.port(url),
-               urlfe.tld_in_path(tld, path),
-               urlfe.tld_in_subdomain(tld, subdomain),
-               urlfe.abnormal_subdomain(url),
-               urlfe.count_subdomain(url),
-               urlfe.prefix_suffix(url),
-               urlfe.random_domain(domain),
-               urlfe.shortening_service(url),
-               
-               
-               urlfe.path_extension(path),
-               urlfe.count_redirection(page),
-               urlfe.count_external_redirection(page, domain),
-               urlfe.length_word_raw(words_raw),
-               urlfe.char_repeat(words_raw),
-               urlfe.shortest_word_length(words_raw),
-               urlfe.shortest_word_length(words_raw_host),
-               urlfe.shortest_word_length(words_raw_path),
-               urlfe.longest_word_length(words_raw),
-               urlfe.longest_word_length(words_raw_host),
-               urlfe.longest_word_length(words_raw_path),
-               urlfe.average_word_length(words_raw),
-               urlfe.average_word_length(words_raw_host),
-               urlfe.average_word_length(words_raw_path),
-               
-               urlfe.phish_hints(url),  
-               urlfe.domain_in_brand(extracted_domain),
-               urlfe.brand_in_path(extracted_domain,subdomain),
-               urlfe.brand_in_path(extracted_domain,path),
-               urlfe.suspecious_tld(tld),
-               urlfe.statistical_report(url, domain),
-
-               
-               # # # content-based features
-                 ctnfe.nb_hyperlinks(Href, Link, Media, Form, CSS, Favicon),
-                 ctnfe.internal_hyperlinks(Href, Link, Media, Form, CSS, Favicon),
-                 ctnfe.external_hyperlinks(Href, Link, Media, Form, CSS, Favicon),
-                 ctnfe.null_hyperlinks(hostname, Href, Link, Media, Form, CSS, Favicon),
-                 ctnfe.external_css(CSS),
-                 ctnfe.internal_redirection(Href, Link, Media, Form, CSS, Favicon),
-                 ctnfe.external_redirection(Href, Link, Media, Form, CSS, Favicon),
-                 ctnfe.internal_errors(Href, Link, Media, Form, CSS, Favicon),
-                 ctnfe.external_errors(Href, Link, Media, Form, CSS, Favicon),
-                 ctnfe.login_form(Form),
-                 ctnfe.external_favicon(Favicon),
-                 ctnfe.links_in_tags(Link),
-                 ctnfe.submitting_to_email(Form),
-                 ctnfe.internal_media(Media),
-                 ctnfe.external_media(Media),
-               #  # additional content-based features
-                 ctnfe.sfh(hostname,Form),
-                 ctnfe.iframe(IFrame),
-                 ctnfe.popup_window(Text),
-                 ctnfe.safe_anchor(Anchor),
-                 ctnfe.onmouseover(Text),
-                 ctnfe.right_clic(Text),
-                 ctnfe.empty_title(Title),
-                 ctnfe.domain_in_title(extracted_domain, Title),
-                 ctnfe.domain_with_copyright(extracted_domain, Text),
-                 
+        row = [url,
+                ctnfe.nb_hyperlinks(Href, Link, Media, Form, CSS, Favicon),
+                ctnfe.internal_hyperlinks(Href, Link, Media, Form, CSS, Favicon),
+                ctnfe.external_hyperlinks(Href, Link, Media, Form, CSS, Favicon),
+                urlfe.count_external_redirection(page, domain),
+                ctnfe.external_errors(Href, Link, Media, Form, CSS, Favicon),
+                ctnfe.links_in_tags(Link),
+                ctnfe.safe_anchor(Anchor),
+                urlfe.check_www(words_raw),
+                urlfe.char_repeat(words_raw),
+                urlfe.shortest_word_length(words_raw),
+                urlfe.longest_word_length(words_raw),
+                urlfe.shortest_word_length(words_raw_path),
+                urlfe.average_word_length(words_raw),
+                urlfe.average_word_length(words_raw_host),
+                urlfe.average_word_length(words_raw_path),
+                urlfe.phish_hints(url), 
                 # # # thirs-party-based features
-                 trdfe.whois_registered_domain(domain),
                  trdfe.domain_registration_length(domain),
                  trdfe.domain_age(domain),
-                 trdfe.web_traffic(url),
-                 trdfe.dns_record(domain),
                  trdfe.google_index(url),
                  trdfe.page_rank(key,domain),
                # status
-               ]
+               status]
         #print(row)
         return row
     return None
@@ -483,100 +391,38 @@ ctn_headers = [
                    'nb_hyperlinks', 
                    'ratio_intHyperlinks',
                    'ratio_extHyperlinks', 
-                   'ratio_nullHyperlinks',
-                   'nb_extCSS',
-                   'ratio_intRedirection',
                    'ratio_extRedirection',
-                   'ratio_intErrors',
                    'ratio_extErrors',
-                   'login_form', 
-                   'external_favicon',
                    'links_in_tags',
-                   'submit_email', 
-                   'ratio_intMedia',
-                   'ratio_extMedia',
-                   'sfh',
-                   'iframe',
-                   'popup_window',
-                   'safe_anchor', 
-                   'onmouseover',
-                   'right_clic',
-                   'empty_title', 
-                   'domain_in_title',
-                   'domain_with_copyright',
+                   'safe_anchor',
                                        
                 ]
 
 
+
+
     
-url_headers = [    'length_url',                                  
-                   'length_hostname',
-                   'ip',
-                   'nb_dots',
-                   'nb_hyphens',
-                   'nb_at',
-                   'nb_qm',
-                   'nb_and',
-                   'nb_or',
-                   'nb_eq',                  
-                   'nb_underscore',
-                   'nb_tilde',
-                   'nb_percent',
-                   'nb_slash',
-                   'nb_star',
-                   'nb_colon',
-                   'nb_comma',
-                   'nb_semicolumn',
-                   'nb_dollar',
-                   'nb_space',
+url_headers = [    
                    'nb_www',
-                   'nb_com',
-                   'nb_dslash',
-                   'http_in_path',
-                   'https_token',
                    'ratio_digits_url',
-                   'ratio_digits_host',
-                   'punycode',
-                   'port',
-                   'tld_in_path',
                    'tld_in_subdomain',
-                   'abnormal_subdomain',
-                   'nb_subdomains',
-                   'prefix_suffix',
-                   'random_domain',
-                   'shortening_service',
-                   'path_extension',
-                   
-                   'nb_redirection',
-                   'nb_external_redirection',
-                   'length_words_raw',
                    'char_repeat',
-                   'shortest_words_raw',
                    'shortest_word_host',
-                   'shortest_word_path',
                    'longest_words_raw',
-                   'longest_word_host',
                    'longest_word_path',
                    'avg_words_raw',
                    'avg_word_host',
                    'avg_word_path',
                    'phish_hints',
-                   'domain_in_brand',
-                   'brand_in_subdomain',
-                   'brand_in_path',
-                   'suspecious_tld',
-                   'statistical_report'
 
                 ]
 
 
 
 tpt_headers = [
-                   'whois_registered_domain',
+                   
                    'domain_registration_length',
                    'domain_age', 
-                   'web_traffic',
-                   'dns_record',
                    'google_index',
                    'page_rank'
                 ]
@@ -584,3 +430,6 @@ tpt_headers = [
 
 headers = url_headers + ctn_headers + tpt_headers
 
+
+result = extract_features("http://rgipt.ac.in","phishing")
+print(result)
